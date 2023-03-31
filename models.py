@@ -15,4 +15,9 @@ class User:
     def hashed_password(self):
         return self._hashed_password
 
+    def set_password(self, password, salt=''):
+        self._hashed_password = hash_password(password, salt)
 
+    @hashed_password.setter
+    def hashed_password(self, password):
+        self._hashed_password = password
