@@ -1,6 +1,9 @@
 import argparse
-from models import User
+
+from psycopg2 import connect, OperationalError
 from psycopg2.errors import UniqueViolation
+
+from models import User
 from pw_encryption import check_password
 
 
@@ -58,3 +61,22 @@ def edit_user(cur, username, password, new_pass):
     else:
         print("Incorrect password.")
 
+
+if __name__ == '__main__':
+    try:
+        cnx = connect(database="workshop", user="postgres", password="coderslab", host="127.0.0.1")
+        cnx.autocommit = True
+        cursor = cnx.cursor()
+        if args.username and args.password and args.edit and args.new_pass:
+            edit_user(cursor, args.username, args.password, args.new_pass)
+        elif args.username and args.password and args.delete:
+            delete_user(cursor, args.username, args.password)
+        elif args.username and args.password:
+            create_user(cursor, args.username, args.password)
+        elif args.list:
+            list_users(cursor)
+        else:
+            parser.print_help()
+        cnx.close()
+    except OperationalError as err:
+        print("Connection Error: ", err)
