@@ -32,3 +32,27 @@ def send_message(cur, from_id, recipent_name, text):
         print("Message sent.")
     else:
         print("Recipient does not exists.")
+
+
+if __name__ == '__main__':
+    try:
+        cnx = connect(database="workshop", user="postgres", password="coderslab", host="127.0.0.1")
+        cnx.autocommit = True
+        cursor = cnx.cursor()
+        if args.username and args.password:
+            user = User.load_user_by_username(cursor, args.username)
+            if check_password(args.password, user.hashed_password):
+                if args.list:
+                    print_user_messages(cursor, user)
+                elif args.to and args.send:
+                    send_message(cursor, user.id, args.to, args.send)
+                else:
+                    parser.print_help()
+            else:
+                print("Incorrect password or User does not exists!")
+        else:
+            print("username and password are required")
+            parser.print_help()
+        cnx.close()
+    except OperationalError as err:
+        print("Connection Error: ", err)
